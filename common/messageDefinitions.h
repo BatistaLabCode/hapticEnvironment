@@ -237,6 +237,7 @@ typedef struct {
 
 typedef struct {
   MSG_HEADER header;
+  int stiffness;
   double bWidth;
   double bHeight;
 } M_HAPTICS_BOUNDING_PLANE;
