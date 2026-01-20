@@ -10,6 +10,7 @@
  * the bounding box but can't leave it, by setting the directionality of the vertex normals.
  */
 
+
 cBoundingPlane::cBoundingPlane(int stiffness, double toolRadius, double bWidth, double bHeight)
 {
   double w = bWidth/2;
@@ -40,7 +41,7 @@ cBoundingPlane::cBoundingPlane(int stiffness, double toolRadius, double bWidth, 
   lowerMesh->computeAllNormals();
   lowerMesh->computeBoundaryBox(true);
   lowerMesh->createAABBCollisionDetector(toolRadius);
-  lowerMesh->setStiffness(0.08*stiffness);
+  lowerMesh->setStiffness(stiffness);
   lowerMesh->setShowTriangles(false);
   lowerMesh->setUseMaterial(true);
   lowerMesh->m_material->setUseHapticFriction(true);
@@ -51,6 +52,11 @@ cBoundingPlane::cBoundingPlane(int stiffness, double toolRadius, double bWidth, 
   lowerMesh->m_material->setVibrationFrequency(0.0);
   lowerMesh->m_material->setDamping(0.0);
   lowerMesh->m_material->setHapticTriangleSides(true, false);
+  
+  cEffectSurface* lowerEffect = new cEffectSurface(lowerMesh);
+  lowerMesh->addEffect(lowerEffect);
+
+  lowerMesh->setHapticEnabled(true);
   
   upperMesh = new cMesh();
   upperMesh->setLocalPos(0.0, 0.0, 0.0);
@@ -71,7 +77,7 @@ cBoundingPlane::cBoundingPlane(int stiffness, double toolRadius, double bWidth, 
   upperMesh->computeAllNormals();
   upperMesh->computeBoundaryBox(true);
   upperMesh->createAABBCollisionDetector(toolRadius);
-  upperMesh->setStiffness(0.08*stiffness);
+  upperMesh->setStiffness(stiffness);
   upperMesh->setShowTriangles(false);
   upperMesh->setUseMaterial(true);
   upperMesh->m_material->setUseHapticFriction(true);
@@ -82,6 +88,12 @@ cBoundingPlane::cBoundingPlane(int stiffness, double toolRadius, double bWidth, 
   upperMesh->m_material->setDamping(0.0);
   upperMesh->m_material->setVibrationFrequency(0.0);
   upperMesh->m_material->setHapticTriangleSides(false, true);
+
+  cEffectSurface* upperEffect = new cEffectSurface(upperMesh);
+  upperMesh->addEffect(upperEffect);
+
+  upperMesh->setHapticEnabled(true);
+
 
   topMesh = new cMesh();
   topMesh->setLocalPos(0.0, 0.0, 0.0);
@@ -99,9 +111,14 @@ cBoundingPlane::cBoundingPlane(int stiffness, double toolRadius, double bWidth, 
   topMesh->computeAllNormals();
   topMesh->computeBoundaryBox(true);
   topMesh->createAABBCollisionDetector(toolRadius);
-  topMesh->setStiffness(0.08*stiffness);
+  topMesh->setStiffness(stiffness);
   topMesh->setShowTriangles(false);
   topMesh->m_material->setHapticTriangleSides(false, true);
+  
+  cEffectSurface* topEffect = new cEffectSurface(topMesh); 
+  topMesh->addEffect(topEffect);  
+
+  topMesh->setHapticEnabled(true);
 
   bottomMesh = new cMesh();
   bottomMesh->setLocalPos(0.0, 0.0, 0.0);
@@ -119,9 +136,25 @@ cBoundingPlane::cBoundingPlane(int stiffness, double toolRadius, double bWidth, 
   bottomMesh->computeAllNormals();
   bottomMesh->computeBoundaryBox(true);
   bottomMesh->createAABBCollisionDetector(toolRadius);
-  bottomMesh->setStiffness(0.08*stiffness);
-  bottomMesh->setShowTriangles(false);
+  bottomMesh->setStiffness(stiffness);
+  bottomMesh->setShowTriangles(true);
+  //
+  bottomMesh->setUseMaterial(true); 
+  bottomMesh->m_material->setColorf(1.0, 0.0, 0.0, 1.0);
+  bottomMesh->m_material->setUseHapticFriction(true);
+  bottomMesh->m_material->setDynamicFriction(0.0);
+  bottomMesh->m_material->setStaticFriction(0.0);
+  bottomMesh->m_material->setAudioFrictionGain(0.0);
+  bottomMesh->m_material->setAudioImpactGain(0.0);
+  bottomMesh->m_material->setVibrationFrequency(0.0);
+  bottomMesh->m_material->setDamping(0.0);
+  //
   bottomMesh->m_material->setHapticTriangleSides(true, false);
+ 
+  cEffectSurface* bottomEffect = new cEffectSurface(bottomMesh); 
+  bottomMesh->addEffect(bottomEffect);
+
+  bottomMesh->setHapticEnabled(true);
   
   leftMesh = new cMesh();
   leftMesh->setLocalPos(0.0, 0.0, 0.0);
@@ -139,9 +172,25 @@ cBoundingPlane::cBoundingPlane(int stiffness, double toolRadius, double bWidth, 
   leftMesh->computeAllNormals();
   leftMesh->computeBoundaryBox(true);
   leftMesh->createAABBCollisionDetector(toolRadius);
-  leftMesh->setStiffness(0.08*stiffness);
-  leftMesh->setShowTriangles(false);
+  leftMesh->setStiffness(stiffness);
+  leftMesh->setShowTriangles(true);
+  //
+  leftMesh->setUseMaterial(true);
+  leftMesh->m_material->setColorf(1.0, 0.0, 0.0, 1.0);
+  leftMesh->m_material->setUseHapticFriction(true);
+  leftMesh->m_material->setDynamicFriction(0.0);
+  leftMesh->m_material->setStaticFriction(0.0);
+  leftMesh->m_material->setAudioFrictionGain(0.0);
+  leftMesh->m_material->setAudioImpactGain(0.0);
+  leftMesh->m_material->setVibrationFrequency(0.0);
+  leftMesh->m_material->setDamping(0.0);
+  //
   leftMesh->m_material->setHapticTriangleSides(false, true);
+  
+  cEffectSurface* leftEffect = new cEffectSurface(leftMesh);  
+  leftMesh->addEffect(leftEffect);
+
+  leftMesh->setHapticEnabled(true);
   
   rightMesh = new cMesh();
   rightMesh->setLocalPos(0.0, 0.0, 0.0);
@@ -159,9 +208,25 @@ cBoundingPlane::cBoundingPlane(int stiffness, double toolRadius, double bWidth, 
   rightMesh->computeAllNormals();
   rightMesh->computeBoundaryBox(true);
   rightMesh->createAABBCollisionDetector(toolRadius);
-  rightMesh->setStiffness(0.08*stiffness);
-  rightMesh->setShowTriangles(false);
+  rightMesh->setStiffness(stiffness);
+  rightMesh->setShowTriangles(true);
+
+  //
+  rightMesh->setUseMaterial(true);
+  rightMesh->m_material->setColorf(1.0, 0.0, 0.0, 1.0);
+  rightMesh->m_material->setUseHapticFriction(true);
+  rightMesh->m_material->setDynamicFriction(0.0);
+  rightMesh->m_material->setStaticFriction(0.0);
+  rightMesh->m_material->setAudioFrictionGain(0.0);
+  rightMesh->m_material->setAudioImpactGain(0.0);
+  rightMesh->m_material->setVibrationFrequency(0.0);
+  rightMesh->m_material->setDamping(0.0);
+  //
   rightMesh->m_material->setHapticTriangleSides(true, false);
+ 
+  cEffectSurface* rightEffect = new cEffectSurface(rightMesh); 
+  rightMesh->addEffect(rightEffect); 
+  rightMesh->setHapticEnabled(true);
 
 
 }
