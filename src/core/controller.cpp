@@ -654,6 +654,20 @@ void parsePacket(char* packet)
         boxObj->m_material->setColorf(box.color[0], box.color[1], box.color[2], box.color[3]);
         controlData.objectMap[box.objectName] = boxObj;
         graphicsData.world->addChild(boxObj);
+
+
+        // PROPERTIES FOR SOLID HAPTIC FEEDBACK:
+        //boxObj->m_material->setStiffness(hapticsData.hapticDeviceInfo.m_maxLinearStiffness * 0.2);
+        boxObj->m_material->setDamping(5);
+        boxObj->m_material->setStaticFriction(3);
+        boxObj->m_material->setDynamicFriction(2);
+        boxObj->m_material->setUseHapticFriction(true);
+
+        cEffectSurface* boxEffect = new cEffectSurface(boxObj);
+        boxObj->addEffect(boxEffect);
+
+        controlData.objectMap[box.objectName] = boxObj;
+        graphicsData.world->addChild(boxObj);
         break;
       }
       case GRAPHICS_SHAPE_SPHERE: 
