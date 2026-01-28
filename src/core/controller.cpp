@@ -435,6 +435,7 @@ void parsePacket(char* packet)
         memcpy(&hapticsEnabled, packet, sizeof(hapticsEnabled));
         char* objectName;
         objectName = hapticsEnabled.objectName;
+     
         if (controlData.objectMap.find(objectName) == controlData.objectMap.end()) {
           std::stringstream ss;
           ss << objectName << " not found";
@@ -443,6 +444,7 @@ void parsePacket(char* packet)
         else {
           if (hapticsEnabled.enabled == 1) {
             controlData.objectMap[objectName]->setHapticEnabled(true);
+            debug_log(__FILE__, __LINE__, __FUNCTION__, "enabled haptics");
           }
           else if (hapticsEnabled.enabled == 0) {
             controlData.objectMap[objectName]->setHapticEnabled(false);
@@ -465,17 +467,20 @@ void parsePacket(char* packet)
       case HAPTICS_SET_STIFFNESS:
       {
         debug_log(__FILE__, __LINE__, __FUNCTION__, "Received HAPTICS_SET_STIFFNESS Message");
-        M_HAPTICS_SET_STIFFNESS stiffness;
-        memcpy(&stiffness, packet, sizeof(stiffness));
+        M_HAPTICS_SET_STIFFNESS stiffnessMsg;
+        memcpy(&stiffnessMsg, packet, sizeof(stiffnessMsg));
         char* objectName;
-        objectName = stiffness.objectName;
+        objectName = stiffnessMsg.objectName;
+
+        double stiffness = stiffnessMsg.stiffness;
+
         if (controlData.objectMap.find(objectName) == controlData.objectMap.end()) {
           std::stringstream ss;
           ss << objectName << " not found";
           debug_log(__FILE__, __LINE__, __FUNCTION__, ss.str().c_str());
         }
         else {
-          controlData.objectMap[objectName]->m_material->setStiffness(stiffness.stiffness);
+          controlData.objectMap[objectName]->m_material->setStiffness(stiffness);
         }
         break;
       }
@@ -486,7 +491,19 @@ void parsePacket(char* packet)
         M_HAPTICS_BOUNDING_PLANE bpMsg;
         memcpy(&bpMsg, packet, sizeof(bpMsg));
         double bWidth = bpMsg.bWidth;
+
+        std::stringstream ss;
+        ss << bWidth << " : width";
+        debug_log(__FILE__, __LINE__, __FUNCTION__, ss.str().c_str());
+
         double bHeight = bpMsg.bHeight;
+
+        std::stringstream ss2;
+        ss2 << bHeight << " : height";
+        debug_log(__FILE__, __LINE__, __FUNCTION__, ss2.str().c_str());
+
+        /*int stiffness = bpMsg.stiffness; */
+
         int stiffness = hapticsData.hapticDeviceInfo.m_maxLinearStiffness;
         double toolRadius = hapticsData.toolRadius;
         cBoundingPlane* bp = new cBoundingPlane(stiffness, toolRadius, bWidth, bHeight);
@@ -497,8 +514,10 @@ void parsePacket(char* packet)
         graphicsData.world->addChild(bp->getLeftBoundingPlane());
         graphicsData.world->addChild(bp->getRightBoundingPlane());
         controlData.objectMap["boundingPlane"] = bp;
+
         break;
       }
+
       
       case HAPTICS_CONSTANT_FORCE_FIELD:
       {
@@ -652,6 +671,17 @@ void parsePacket(char* packet)
         cShapeBox* boxObj = new cShapeBox(box.sizeX, box.sizeY, box.sizeZ);
         boxObj->setLocalPos(box.localPosition[0], box.localPosition[1], box.localPosition[2]);
         boxObj->m_material->setColorf(box.color[0], box.color[1], box.color[2], box.color[3]);
+
+        // PROPERTIES FOR SOLID HAPTIC FEEDBACK:
+        //boxObj->m_material->setStiffness(hapticsData.hapticDeviceInfo.m_maxLinearStiffness * 0.2);
+        boxObj->m_material->setDamping(5);            
+        boxObj->m_material->setStaticFriction(3);        
+        boxObj->m_material->setDynamicFriction(2);       
+        boxObj->m_material->setUseHapticFriction(true);
+       
+        cEffectSurface* boxEffect = new cEffectSurface(boxObj);
+        boxObj->addEffect(boxEffect);
+
         controlData.objectMap[box.objectName] = boxObj;
         graphicsData.world->addChild(boxObj);
 
